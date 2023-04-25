@@ -64,10 +64,7 @@ public class DataProviderServices : IDataProviderServices
         {
             "consulta2" => new List<string> () { "MaxQ","Pattern" },
             "consulta3" => new List<string>() { "Month", "Year" },
-            "consulta4" => new List<string>() { "", "" },
-            "consulta5" => new List<string>() { "", "" },
-            "consulta6" => new List<string>() { "", "" },
-            "consulta7" => new List<string>() { "", "" },
+            "consulta4" => new List<string>() { "NombreOS", "PeriodoMes", "PeriodoAnio" },
             _ => throw new ArgumentException(message: "invalid target option", paramName: nameof(target)),
         };
 
@@ -77,10 +74,7 @@ public class DataProviderServices : IDataProviderServices
             "consulta1" => Enum.GetName(StoredProcedure.sp_PacientesEstudiosConOS),
             "consulta2" => Enum.GetName(StoredProcedure.sp_TopPacientesViejosPorApellido),
             "consulta3" => Enum.GetName(StoredProcedure.sp_CantidadPeriodoEstudiosPactesyMedicos),
-            "consulta4" => string.Empty,
-            "consulta5" => string.Empty,
-            "consulta6" => string.Empty,
-            "consulta7" => string.Empty,
+            "consulta4" => Enum.GetName(StoredProcedure.sp_TotalFacturarYEstudiosObraSocial),
             _ => throw new ArgumentException(message: "invalid target option", paramName: nameof(target)),
         };
     

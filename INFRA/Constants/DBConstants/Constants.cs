@@ -8,7 +8,8 @@ public static class Constants
     {
         sp_PacientesEstudiosConOS,
         sp_TopPacientesViejosPorApellido,
-        sp_CantidadPeriodoEstudiosPactesyMedicos
+        sp_CantidadPeriodoEstudiosPactesyMedicos,
+        sp_TotalFacturarYEstudiosObraSocial
     };
 
 }

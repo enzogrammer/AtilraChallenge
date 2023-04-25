@@ -137,6 +137,85 @@ EXECUTE sp_CantidadPeriodoEstudiosPactesyMedicos @Month = 1, @Year = 2013;
 ○ Si no existe debe crearla.
 ○ Si no existen el estudio o el instituto debe crearlos.*/
 
+ALTER PROCEDURE sp_GestionarPrecioEstudioInstituto
+	@NombreEstudio nvarchar(11),
+	@NombreInstituto nvarchar(30),
+	@Precio float
+AS
+
+	DECLARE @existeEstudio bit;
+	DECLARE @existeInstituto bit;
+	DECLARE @existeTupla bit;
+	DECLARE @InsertID int;
+	DECLARE @resultado nvarchar(500);
+
+	SET @resultado = ' ';
+
+	SET @existeEstudio = ISNULL(NULLIF((SELECT 1 FROM estudios e WHERE e.tipoDeEstudio = @NombreEstudio),''),0);
+	SET @existeInstituto = ISNULL(NULLIF((SELECT 1 FROM institutos i WHERE i.nombreInstituto = @NombreInstituto),''),0);
+	SET @existeTupla = ISNULL(NULLIF((SELECT 1 
+									  FROM estudios_Institutos ei 
+									  INNER JOIN estudios e on e.tipoDeEstudio = @NombreEstudio and ei.idEstudio = e.idEstudio
+									  INNER JOIN institutos i on i.nombreInstituto = @NombreInstituto and ei.idInstituto = i.idInstituto),''),0);
+
+	--evalúo si existe estudio, sino lo creo
+	IF @existeEstudio = 1
+		BEGIN
+			SET @resultado += 'El estudio ' + @NombreEstudio + ' existe;';
+		END
+	ELSE
+		BEGIN
+			SET @InsertID = (SELECT MAX(idEstudio)+1 FROM estudios e);
+
+			INSERT INTO estudios (idEstudio,tipoDeEstudio)
+			VALUES (@InsertID,@NombreEstudio);
+
+			SET @resultado += 'Inserto estudio ' + @NombreEstudio + ' con ID ' + @InsertID + ';';
+		END
+
+	--evalúo si existe instituto, sino lo creo
+	IF @existeInstituto = 1
+		BEGIN
+			SET @resultado += 'El instituto ' + @NombreInstituto + ' existe;';
+		END
+	ELSE
+		BEGIN
+			SET @InsertID = (SELECT MAX(idInstituto)+1 FROM institutos i);
+
+			INSERT INTO institutos(idInstituto,nombreInstituto,estado)
+			VALUES (@InsertID,@NombreInstituto,'A');
+
+			SET @resultado += 'Inserto instituto ' + @NombreInstituto + ' con ID ' + @InsertID + ';';
+		END
+
+	--evalúo si existe tupla, si existe actualizo sino la creo
+	IF @existeTupla = 1
+		BEGIN
+			UPDATE estudios_Institutos SET precio = @Precio
+			FROM estudios_Institutos ei
+			INNER JOIN estudios e ON e.tipoDeEstudio = @NombreEstudio and ei.idEstudio = e.idEstudio
+			INNER JOIN institutos i ON i.nombreInstituto = @NombreInstituto and ei.idInstituto = i.idInstituto;
+
+			SET @resultado += 'Actualizo tupla ' + @NombreInstituto + ' - ' + @NombreEstudio + ';';
+		END
+	ELSE
+		BEGIN
+			INSERT INTO estudios_Institutos(idEstudio,idInstituto,precio)
+			VALUES (
+				(SELECT idEstudio FROM estudios e WHERE e.tipoDeEstudio = @NombreEstudio),
+				(SELECT idInstituto FROM institutos i WHERE i.nombreInstituto = @NombreInstituto),
+				@Precio
+			);
+
+			SET @resultado += 'Inserto tupla ' + @NombreInstituto + ' - ' + @NombreEstudio + ';';
+		END
+
+	SELECT @resultado [Resultado LOG];
+
+GO;
+
+--test
+EXECUTE sp_GestionarPrecioEstudioInstituto @NombreEstudio = 'radiologia', @NombreInstituto = 'centro Tomas', @Precio = 999.12
 
 
 /*
@@ -146,3 +225,22 @@ intervinientes a una determinada obra social.
 ○ OUTPUT: precio neto, cantidad de estudios.
 ○ Devuelve en dos variables el neto a facturar a la obra social o prepaga y la cantidad de
 estudios que abarca para un determinado período*/
+
+ALTER PROCEDURE sp_TotalFacturarYEstudiosObraSocial
+	@NombreOS nvarchar(50),
+	@PeriodoMes int,
+	@PeriodoAnio int
+AS
+
+	SELECT 	ISNULL(SUM(precio),0) Facturado, 
+			ISNULL(COUNT(*),0) Cantidad
+	FROM [estudiosRealizados] er 
+	inner join estudios_Institutos ei on ei.idEstudio = er.idEstudio and ei.idInstituto = er.idInstituto
+	inner join obraSocial os on os.razonSocial = @NombreOS and er.sigla = os.sigla
+	WHERE @PeriodoMes = month(er.fecha) and 
+		  @PeriodoAnio = year(er.fecha) ;
+
+GO;
+
+--test
+EXECUTE sp_TotalFacturarYEstudiosObraSocial @NombreOS = 'OSDE', @PeriodoMes = 1, @PeriodoAnio = 2013

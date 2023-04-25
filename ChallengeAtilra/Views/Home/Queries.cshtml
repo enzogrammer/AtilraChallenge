@@ -8,9 +8,9 @@
 
 <h3>Acá podrán realizarse todas las consultas.</h3>
 
-<div class="container">
+<div class="container" style="margin-top: 20px">
     <div class="row">
-        <div class="col-sm"> 
+        <div class="col-sm-4"> 
             <button type='button' onclick="ShowElement('group-consulta1')" class="btn btn-primary">Consulta 1</button>
             <p>Crear una vista que determine los 3 pacientes que pagaron en concepto de estudios y que
                 poseían cobertura a través de una obra social. Proyecte el nombre, el apellido, la obra social, el
@@ -21,12 +21,12 @@
                     <div class="row">
                         <div class="col-sm-12"></div>
                     </div>
-                    <button type='button' onclick="GetData('consulta1','')" class="btn btn-secondary">Ejecutar Consulta 2</button>
+                    <button type='button' onclick="GetData('consulta1','')" class="btn btn-secondary">Ejecutar Consulta 1</button>
                 </div>
             </form>
 
         </div>
-        <div class="col-sm"> 
+        <div class="col-sm-4"> 
             <button type='button' onclick="ShowElement('group-consulta2')" class="btn btn-primary">Consulta 2</button>
             <p>Crear un procedimiento que proyecte DNI, fecha de nacimiento, nombre y apellido de los
                 pacientes que correspondan a los n (valor solicitado) pacientes más viejos cuyo apellido cumpla
@@ -62,7 +62,7 @@
             </form>
 
         </div>
-        <div class="col-sm"> 
+        <div class="col-sm-4"> 
             <button type='button' onclick="ShowElement('group-consulta3')" class="btn btn-primary">Consulta 3</button>
             <p>Crear un procedimiento que devuelva la cantidad de pacientes y médicos que efectuaron
                 estudios en un determinado período.
@@ -85,6 +85,46 @@
                     <button type='button' onclick="GetParamsAndSend('consulta3')" class="btn btn-secondary">Ejecutar Consulta 3</button>
                 </div>
             </form>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <button type='button' onclick="ShowElement('group-consulta4')" class="btn btn-primary">Consulta 4</button>
+            <p>
+                Crear un procedimiento que devuelva el precio total a facturar y la cantidad de estudios
+                intervinientes a una determinada obra social.
+                Devuelve en dos variables el neto a facturar a la obra social o prepaga y la cantidad de
+                estudios que abarca para un determinado período
+            </p>
+
+            <form id="form1">
+                <div class="form-group" id="group-consulta4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="group-consulta4-input1">Mes</label>
+                            <input type="number" onkeyup="this.value= Math.abs(this.value)" class="form-control" id="group-consulta4-input1" min="1" max="12" placeholder="1" value="1">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="group-consulta4-input2">A&ntildeo</label>
+                            <input type="number" onkeyup="this.value= Math.abs(this.value)" class="form-control" id="group-consulta4-input2" min="1900" max="2023" placeholder="1" value="2020">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="group-consulta4-input3">Raz&oacuten Social (OS)</label>
+                            <input type="text" class="form-control" id="group-consulta4-input3" placeholder="OSDE" value="">
+                        </div>
+                    </div>
+                    <button type='button' onclick="GetParamsAndSend('consulta4')" class="btn btn-secondary">Ejecutar Consulta 4</button>
+                </div>
+            </form>
+
+        </div>
+        <div class="col-sm-4">
+
+        </div>
+        <div class="col-sm-4"> 
 
         </div>
     </div>
@@ -131,6 +171,19 @@
                 params += filter +'%';
             if (DoesStringEndWith(selected, '3')) //ends with
                 params += '%'+ filter;
+        }
+        else if (target == 'consulta3')
+        {
+            var month = GetInputValue('group-consulta3-input1');
+            var year = GetInputValue('group-consulta3-input2');
+            params += month + ';' + year ;
+        }
+        else if (target == 'consulta4')
+        {
+            var os = GetInputValue('group-consulta4-input3');
+            var month = GetInputValue('group-consulta4-input1');
+            var year = GetInputValue('group-consulta4-input2');
+            params += os + ';' + month + ';' + year ;
         }
         GetData(target,params);
     }
