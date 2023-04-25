@@ -1,0 +1,162 @@
+﻿@using System.Data;
+
+@{
+    ViewData["Title"] = "Consultas";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h3>Acá podrán realizarse todas las consultas.</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm"> 
+            <button type='button' onclick="ShowElement('group-consulta1')" class="btn btn-primary">Consulta 1</button>
+            <p>Crear una vista que determine los 3 pacientes que pagaron en concepto de estudios y que
+                poseían cobertura a través de una obra social. Proyecte el nombre, el apellido, la obra social, el
+                plan y el importe abonado por el usuario.</p>
+
+            <form id="form1">
+                <div class="form-group" id="group-consulta1">
+                    <div class="row">
+                        <div class="col-sm-12"></div>
+                    </div>
+                    <button type='button' onclick="GetData('consulta1','')" class="btn btn-secondary">Ejecutar Consulta 2</button>
+                </div>
+            </form>
+
+        </div>
+        <div class="col-sm"> 
+            <button type='button' onclick="ShowElement('group-consulta2')" class="btn btn-primary">Consulta 2</button>
+            <p>Crear un procedimiento que proyecte DNI, fecha de nacimiento, nombre y apellido de los
+                pacientes que correspondan a los n (valor solicitado) pacientes más viejos cuyo apellido cumpla
+                con determinado patrón de caracteres.</p>
+
+            <form id="form2">
+                <div class="form-group" id="group-consulta2">
+                    <label for="group-consulta2-input1">Cantidad</label>
+                    <input type="number" onkeyup="this.value= Math.abs(this.value)" class="form-control" id="group-consulta2-input1" min="1" placeholder="1" value="1">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label for="group-consulta2-radio">Filtro Apellido</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="group-consulta2-radio" id="group-consulta2-radio1" checked>
+                                <label class="form-check-label" for="group-consulta2-radio1"> Sin filtrar</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="group-consulta2-radio" id="group-consulta2-radio2">
+                                <label class="form-check-label" for="group-consulta2-radio2"> Comienza con... </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="group-consulta2-radio" id="group-consulta2-radio3">
+                                <label class="form-check-label" for="group-consulta2-radio3"> Termina con... </label>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <label for="group-consulta2-input2">Filtro</label>
+                            <input type="text" class="form-control" id="group-consulta2-input2" placeholder="a">
+                        </div>
+                    </div>
+                    <button type='button' onclick="GetParamsAndSend('consulta2')" class="btn btn-secondary">Ejecutar Consulta 2</button>
+                </div>
+            </form>
+
+        </div>
+        <div class="col-sm"> 
+            <button type='button' onclick="ShowElement('group-consulta3')" class="btn btn-primary">Consulta 3</button>
+            <p>Crear un procedimiento que devuelva la cantidad de pacientes y médicos que efectuaron
+                estudios en un determinado período.
+                Ingresar período a consultar (mes y año)
+                Retornar cantidad de pacientes que se realizaron uno o más estudios y cantidad de
+                médicos solicitantes de los mismos, en dos variables.</p>
+
+            <form id="form3">
+                <div class="form-group" id="group-consulta3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="group-consulta3-input1">Mes</label>
+                            <input type="number" onkeyup="this.value= Math.abs(this.value)" class="form-control" id="group-consulta3-input1" min="1" max="12" placeholder="1" value="1">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="group-consulta3-input2">A&ntildeo</label>
+                            <input type="number" onkeyup="this.value= Math.abs(this.value)" class="form-control" id="group-consulta3-input2" min="1900" max="2023" placeholder="1" value="2020">
+                        </div>
+                    </div>
+                    <button type='button' onclick="GetParamsAndSend('consulta3')" class="btn btn-secondary">Ejecutar Consulta 3</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div id="table" style="border-spacing: 30px;margin-top: 30px" class="table">
+             <!--Dynamic table-->
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    window.onload = function(){
+        HideElementsByClassName("form-group");
+    }; 
+    function GetData(target,params) {
+        $.ajax({
+            type: 'Get',
+            url: '/Home/Queries',
+            data: {
+                target: target,
+                parameters: params
+            },
+            success: function (data) {
+                $('#table').html(data);            
+            },
+            error: function (error) {
+                alert('Failed to receive the Data ' + error);
+                console.log('Failed '+ error);
+            }
+        })
+    }
+    function GetParamsAndSend(target) {
+        var params = '';
+        if (target == 'consulta2')
+        {
+            var selected = $("input[name='group-consulta2-radio']:checked").attr('id');
+            var quantity = GetInputValue('group-consulta2-input1');
+            var filter = GetInputValue('group-consulta2-input2');
+            params += quantity + ';';
+            if (DoesStringEndWith(selected,'2')) //starts with
+                params += filter +'%';
+            if (DoesStringEndWith(selected, '3')) //ends with
+                params += '%'+ filter;
+        }
+        GetData(target,params);
+    }
+    function ShowElement(value) {
+        var visible = $("#" + value).is(":visible");
+        if (!visible)
+            $("#"+value).show();
+        else
+            HideElement(value);
+    }
+    function HideElement(value) {
+        $("#"+value).hide();
+    }
+    function HideElementsByClassName(value) {
+        $('.'+value).hide();
+    }
+    function HideAll() {
+        HideElement('table');
+        HideElementsByClassName("form-group");
+    }
+    function DoesStringEndWith(myString, stringCheck) {
+        var foundIt = (myString.lastIndexOf(stringCheck) === myString.length - stringCheck.length) > 0;
+        return foundIt;
+    }
+    function GetInputValue(e)  {
+        return $('#'+ e).val();
+    }
+
+</script>

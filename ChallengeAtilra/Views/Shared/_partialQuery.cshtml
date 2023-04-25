@@ -1,0 +1,37 @@
+﻿@model System.Data.DataTable
+
+@if (Model is object)
+{
+    <b>RESULTADOS:</b>
+}
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            @if (Model is object)
+                @foreach (System.Data.DataColumn col in ((System.Data.DataTable)Model).Columns)
+                {
+                    <th>@col.Caption</th>
+                }
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model is object)
+        {
+            @foreach(System.Data.DataRow row in ((System.Data.DataTable)Model).Rows)
+            {
+                <tr>
+                    @foreach (var cell in row.ItemArray)
+                    {
+                        <td>@cell.ToString()</td>
+                    }
+                </tr>
+            }      
+        }
+        else
+        {
+            <tr>
+                <td>(Vacío)</td>
+            </tr>
+        }
+    </tbody>
+</table>

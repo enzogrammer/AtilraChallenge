@@ -1,0 +1,35 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+p {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+input[type=button] {
+    padding: 6px 10px;
+    margin: 15px 0;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 6px 10px;
+    margin: 15px 0;
+    box-sizing: border-box;
+}
